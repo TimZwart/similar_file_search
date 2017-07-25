@@ -14,19 +14,29 @@ scorelist = []
 the_folder = sys.argv[1]
 
 def walk_folder(folder):
+  print "scanning folder", folder
   for (dirpath, dirnames, filenames) in os.walk(folder):
+    print "files to scan", filenames
     for f in filenames:
       filename = "/".join([dirpath, f])
       if is_binary(filename):
         break
-      opened = open(filename)
-      str_f = opened.read()
-      opened = [str_to_compare, str_f]
-      tfidvec = TfidfVectorizer().fit_transform(opened)
-      similarity = tfidvec * tfidvec.T
-      scorelist.append([filename, similarity[0,1]])
+      try:
+        opened = open(filename)
+        str_f = opened.read()
+        opened = [str_to_compare, str_f]
+        tfidvec = TfidfVectorizer().fit_transform(opened)
+        similarity = tfidvec * tfidvec.T
+        scorelist.append([filename, similarity[0,1]])
+      except UnicodeDecodeError:
+        print "nonstandard binary file found", filename
+    print "directories to scan", dirnames
     for d in dirnames:
-      walk_folder("/".join([dirpath, d]))
+      if d in [".git", "target"]:
+        break
+      dpath = "/".join([dirpath, d]) 
+#      print "scanning", dpath
+      walk_folder(dpath)
 
 walk_folder(the_folder)
 

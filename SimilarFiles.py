@@ -5,13 +5,20 @@ import os
 import pdb
 from sklearn.feature_extraction.text import TfidfVectorizer
 from binaryornot.check import is_binary
-
+import time
+import difflib
+start = time.time()
 file_to_compare = sys.argv[2]
 opened_file_to_compare = open(file_to_compare)
 str_to_compare = opened_file_to_compare.read()
 
 scorelist = []
 the_folder = sys.argv[1]
+
+if len(sys.argv) > 3 and sys.argv[3] == "difflib":
+  use_difflib = True
+else:
+  use_difflib = False 
 
 def walk_folder(folder):
   print "scanning folder", folder
@@ -25,10 +32,14 @@ def walk_folder(folder):
       try:
         opened = open(filename)
         str_f = opened.read()
-        opened = [str_to_compare, str_f]
-        tfidvec = TfidfVectorizer().fit_transform(opened)
-        similarity = tfidvec * tfidvec.T
-        scorelist.append([filename, similarity[0,1]])
+        if use_difflib:
+          matcher = difflib.SequenceMatcher(str_to_compare, str_f)
+          scorelist.append([filename, matcher.ratio()])
+        else:
+          opened = [str_to_compare, str_f]
+          tfidvec = TfidfVectorizer().fit_transform(opened)
+          similarity = tfidvec * tfidvec.T
+          scorelist.append([filename, similarity[0,1]])
       except UnicodeDecodeError:
         print "nonstandard binary file found", filename
 
@@ -40,3 +51,6 @@ def getKey(pair1):
 sorted_scorelist = sorted(scorelist, key=getKey)
 
 print sorted_scorelist
+end = time.time()
+running_time = end - start
+print "time elapased", running_time

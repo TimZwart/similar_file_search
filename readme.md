@@ -21,7 +21,10 @@ redirect the output to less for best results if you are scanning a lot of files
 
 ##output
 
-an array consisting of entries like ["filename", similarity\_score] sorted by similarity score and the time it took to run
+a sorted list of entries like 
+filename: similarity\_score
+
+listed in order of similarity with the most similar files on top
 
 ## issues
 
@@ -39,9 +42,20 @@ an array consisting of entries like ["filename", similarity\_score] sorted by si
 
 ## optional arguments
 
-adding a third argument 'difflib' makes it use the difflib library instead. this is not recommended because this does not produce a reasonable similarity. 
+### difflib
+adding a third argument '--difflib' makes it use the difflib library instead. this is not recommended because this does not produce a reasonable similarity. 
 
 ```
-/path/to/SimilarFiles.py <directory> <file> difflib
+/path/to/SimilarFiles.py <directory> <file> --difflib
 
 ```
+
+### levenstein
+adding a third argument '--levenstein' makes it use the Levenshtein distance instead. 
+
+```
+/path/to/SimilarFiles.py <directory> <file> --levenstein
+
+```
+### runtime
+adding an additional argument '--runtime' makes it show the time it takes to run
